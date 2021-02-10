@@ -9,7 +9,7 @@ and returns the decimal in numerator scale. A rescale decimal function is also p
 The following files are included :-
 
 decimal.cpp - The core fixed decimal package supporting decimals with fixed precision(38) and a max scale of 38        decimal_multiplication_generator.py  - Generates tests for the multiplication operations
-magic_number_generator.py - To optimize multiplication and division with specific constants we can generate precomiled constats to speed it up
+magic_number_generator.py - To optimize multiplication and division with specific constants we can generate precompiled constats to speed it up
 
 Decimal_Division_Generator.java  - Generates tests for the division operations
 decimal.o - binary for compiling as a shared library                            
@@ -20,6 +20,6 @@ main.cpp - A testing file to run the tests provided
 
 
 
-The generated test files can be found at
+The generated test files for multiplication and division can be found at
 https://drive.google.com/drive/folders/1tA8jN-83ImBKyifN6PILtsanQ7jFT-J9?usp=sharing
 These contain 10^7 and 3.8*10^7 tests respectively.
