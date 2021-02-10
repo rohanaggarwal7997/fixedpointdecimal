@@ -117,7 +117,7 @@ Decimal::NativeType DecimalComputeMagicNumbers128(const uint128_t (&half_words_r
 
       return result_upper >> (magic_p - 1);
     }
-    // default:
+    default:
       throw "Unknown algorithm.";
   }
 }
@@ -207,10 +207,10 @@ void Decimal::MultiplyAndSet(const Decimal &unsigned_input, uint32_t scale) {
   }
 
   // Magic number half words
-  uint128_t magic[4] = {DecimalMagicNumbers::MAGIC_ARRAY[scale][3], DecimalMagicNumbers::MAGIC_ARRAY[scale][2],
-                        DecimalMagicNumbers::MAGIC_ARRAY[scale][1], DecimalMagicNumbers::MAGIC_ARRAY[scale][0]};
-  uint32_t magic_p = DecimalMagicNumbers::MAGIC_P_AND_ALGO_ARRAY[scale][0] - 256;
-  uint32_t algo = DecimalMagicNumbers::MAGIC_P_AND_ALGO_ARRAY[scale][1];
+  uint128_t magic[4] = {MAGIC_ARRAY[scale][3], MAGIC_ARRAY[scale][2],
+                        MAGIC_ARRAY[scale][1], MAGIC_ARRAY[scale][0]};
+  uint32_t magic_p = MAGIC_P_AND_ALGO_ARRAY[scale][0] - 256;
+  uint32_t algo = MAGIC_P_AND_ALGO_ARRAY[scale][1];
 
   value_ = DecimalComputeMagicNumbers256(half_words_result, magic, algo, magic_p);
 }
@@ -223,14 +223,14 @@ void Decimal::UnsignedDivideConstant128BitPowerOfTen(uint32_t exponent) {
   {
     uint128_t a = value_;
     uint128_t half_words_a[2] = {a & BOTTOM_MASK, (a & TOP_MASK) >> 64};
-    uint128_t half_words_b[2] = {DecimalMagicNumbers::MAGIC_MAP128_BIT_POWER_TEN[exponent].lower_,
-                                 DecimalMagicNumbers::MAGIC_MAP128_BIT_POWER_TEN[exponent].upper_};
+    uint128_t half_words_b[2] = {MAGIC_MAP128_BIT_POWER_TEN[exponent].lower_,
+                                 MAGIC_MAP128_BIT_POWER_TEN[exponent].upper_};
     // TODO(Rohan): Calculate only upper half
     CalculateMultiWordProduct128(half_words_a, half_words_b, half_words_result, 2, 2);
   }
 
-  uint32_t magic_p = DecimalMagicNumbers::MAGIC_MAP128_BIT_POWER_TEN[exponent].p_ - 128;
-  uint32_t algo = DecimalMagicNumbers::MAGIC_MAP128_BIT_POWER_TEN[exponent].algo_;
+  uint32_t magic_p = MAGIC_MAP128_BIT_POWER_TEN[exponent].p_ - 128;
+  uint32_t algo = MAGIC_MAP128_BIT_POWER_TEN[exponent].algo_;
 
   value_ = DecimalComputeMagicNumbers128(half_words_result, algo, magic_p, value_);
 }
@@ -245,7 +245,7 @@ void Decimal::UnsignedDivideConstant128Bit(uint128_t constant) {
   // 1. If possible, power of 2 division.
   {
     if ((constant & (constant - 1)) == 0) {
-      uint32_t power_of_two = DecimalMagicNumbers::power_two[constant];
+      uint32_t power_of_two = power_two[constant];
       value_ = static_cast<uint128_t>(value_) >> power_of_two;
       return;
     }
@@ -253,7 +253,7 @@ void Decimal::UnsignedDivideConstant128Bit(uint128_t constant) {
 
   // 2. If not possible, regular division.
   {
-    if (DecimalMagicNumbers::magic_map128_bit_constant_division.count(constant) == 0) {
+    if (magic_map128_bit_constant_division.count(constant) == 0) {
       value_ = static_cast<uint128_t>(value_) / constant;
       return;
     }
@@ -266,14 +266,14 @@ void Decimal::UnsignedDivideConstant128Bit(uint128_t constant) {
     {
       uint128_t a = value_;
       uint128_t half_words_a[2] = {a & BOTTOM_MASK, (a & TOP_MASK) >> 64};
-      uint128_t half_words_b[2] = {DecimalMagicNumbers::magic_map128_bit_constant_division[constant].lower_,
-                                   DecimalMagicNumbers::magic_map128_bit_constant_division[constant].upper_};
+      uint128_t half_words_b[2] = {magic_map128_bit_constant_division[constant].lower_,
+                                   magic_map128_bit_constant_division[constant].upper_};
       // TODO(Rohan): Calculate only upper half
       CalculateMultiWordProduct128(half_words_a, half_words_b, half_words_result, 2, 2);
     }
 
-    uint32_t magic_p = DecimalMagicNumbers::magic_map128_bit_constant_division[constant].p_ - 128;
-    uint32_t algo = DecimalMagicNumbers::magic_map128_bit_constant_division[constant].algo_;
+    uint32_t magic_p = magic_map128_bit_constant_division[constant].p_ - 128;
+    uint32_t algo = magic_map128_bit_constant_division[constant].algo_;
 
     value_ = DecimalComputeMagicNumbers128(half_words_result, algo, magic_p, value_);
   }
@@ -346,8 +346,8 @@ void Decimal::SignedDivideWithDecimal(Decimal denominator, uint32_t denominator_
   uint128_t half_words_result[4];
   {
     uint128_t half_words_a[2] = {value_ & BOTTOM_MASK, (value_ & TOP_MASK) >> 64};
-    uint128_t half_words_b[2] = {DecimalMagicNumbers::POWER_OF_TEN[denominator_scale][1],
-                                 DecimalMagicNumbers::POWER_OF_TEN[denominator_scale][0]};
+    uint128_t half_words_b[2] = {POWER_OF_TEN[denominator_scale][1],
+                                 POWER_OF_TEN[denominator_scale][0]};
     CalculateMultiWordProduct128(half_words_a, half_words_b, half_words_result, 2, 2);
   }
 
@@ -356,7 +356,7 @@ void Decimal::SignedDivideWithDecimal(Decimal denominator, uint32_t denominator_
     value_ = half_words_result[0] | (half_words_result[1] << 64);
     UnsignedDivideConstant128Bit(constant);
   } else {
-    if (DecimalMagicNumbers::magic_map256_bit_constant_division.count(constant) > 0) {
+    if (magic_map256_bit_constant_division.count(constant) > 0) {
       // 3. If no overflow, and have magic numbers, use magic numbers.
       value_ = Decimal::UnsignedMagicDivideConstantNumerator256Bit(half_words_result, constant);
     } else {
@@ -376,12 +376,12 @@ void Decimal::SignedDivideWithDecimal(Decimal denominator, uint32_t denominator_
 
 uint128_t Decimal::UnsignedMagicDivideConstantNumerator256Bit(const uint128_t (&unsigned_dividend)[4],
                                                               uint128_t unsigned_constant) {
-  uint128_t magic[4] = {DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].d_,
-                        DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].c_,
-                        DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].b_,
-                        DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].a_};
-  uint32_t magic_p = DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].p_ - 256;
-  uint32_t algo = DecimalMagicNumbers::magic_map256_bit_constant_division[unsigned_constant].algo_;
+  uint128_t magic[4] = {magic_map256_bit_constant_division[unsigned_constant].d_,
+                        magic_map256_bit_constant_division[unsigned_constant].c_,
+                        magic_map256_bit_constant_division[unsigned_constant].b_,
+                        magic_map256_bit_constant_division[unsigned_constant].a_};
+  uint32_t magic_p = magic_map256_bit_constant_division[unsigned_constant].p_ - 256;
+  uint32_t algo = magic_map256_bit_constant_division[unsigned_constant].algo_;
 
   return DecimalComputeMagicNumbers256(unsigned_dividend, magic, algo, magic_p);
 }
