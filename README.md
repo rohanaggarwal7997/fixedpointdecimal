@@ -10,6 +10,7 @@ The following files are included :-
 
 decimal.cpp - The core fixed decimal package supporting decimals with fixed precision(38) and a max scale of 38        decimal_multiplication_generator.py  - Generates tests for the multiplication operations
 magic_number_generator.py - To optimize multiplication and division with specific constants we can generate precomiled constats to speed it up
+
 Decimal_Division_Generator.java  - Generates tests for the division operations
 decimal.o - binary for compiling as a shared library                            
 magic_numbers.h - magic constants that speed up the decimal operations
