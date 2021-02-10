@@ -1,3 +1,8 @@
+/*
+ * This file contains magic numbers as defined by Hacker's Delight [2E].
+ * Magic numbers are used for fast integer division.
+ */
+
 #include <bits/stdc++.h>
 using int128_t = __int128;
 using uint128_t = unsigned __int128;
